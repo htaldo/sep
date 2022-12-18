@@ -316,7 +316,7 @@ func (s Segment) Points() (P Point, Q Point) {
 func (s1 Segment) Schnitt(s2 Segment) Point {
 	l1 := ppline(s1.P, s1.Q)
 	l2 := ppline(s2.P, s2.Q)
-	sch := Schnitt (l1, l2)
+	sch := l1.Schnitt(l2)
 	xvalues := []float64{sch.X, s1.P.X, s1.Q.X, s2.P.X, s2.Q.X}
 	yvalues := []float64{sch.Y, s1.P.Y, s1.Q.Y, s2.P.Y, s2.Q.Y}
 	sort.Float64s(xvalues)
