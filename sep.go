@@ -330,7 +330,7 @@ func (s1 Segment) Schnitt(s2 Segment) Point {
 	}
 }
 
-func (l1 line) Schnitt(l2 Line) Point {
+func (l1 Line) Schnitt(l2 Line) Point {
 	//TODO: break if A1 and A2 are the same
 	x := (l2.B - l1.B) / (l1.A - l2.A)
 	y := l1.A * x + l1.B 
