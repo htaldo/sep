@@ -115,13 +115,13 @@ func direct(F0, S Stream, d Diagram, finalExtC float64) {
 //	Rn.x := schnittRaf(Line{-1, 1-c})
 //	E0.x = schnittExt(segLine(Rn.x,M.x))	
 //	E = append(E, E0)
-//	P := segLine(F.x,E0).schnitt(segLine(Rn.x, S.x))
+//	P := segLine(F.x,E0).Schnitt(segLine(Rn.x, S.x))
 //	var nextRx, nextEx Point
 //	nextRx = Point{0, 0}
 //	for i := 0; to3(nextRx)[2] > Rn.c; i++ {
 //		nextRx = alders(E[i].x, d.Alders)
 //		R = append(Rcomps, nextRcomp)
-//		nextEcomp = schnittExt(line(nextRcomp, P))
+//		nextEcomp = SchnittExt(line(nextRcomp, P))
 //		Ecomps = append(Ecomps, nextEcomp)
 //	}
 //	//TODO: Discard the last Ecomp, or return Ecomps[i]
@@ -131,7 +131,7 @@ func direct(F0, S Stream, d Diagram, finalExtC float64) {
 //	var sch Point
 //	for i := 0; i < len(eqLines) - 1; i++ {
 //		rafSeg := Segment{eqLines[i].P, eqLines[i+1].P}	
-//		sch = l.schnitt(segLine(rafSeg))	
+//		sch = l.Schnitt(segLine(rafSeg))	
 //		//check orientation of P and Q
 //		if twopBound(sch, rafSeg.P, rafSeg.Q) == true {
 //			break
@@ -144,7 +144,7 @@ func direct(F0, S Stream, d Diagram, finalExtC float64) {
 //	var sch Point
 //	for i := 0; i < len(eqLines) - 1; i++ {
 //		extSeg := Segment{eqLines[i].Q, eqLines[i+1].Q}	
-//		sch = l.schnitt(segLine(extSeg))	
+//		sch = l.Schnitt(segLine(extSeg))	
 //		//check orientation of P and Q
 //		if twopBound(sch, extSeg.P, extSeg.Q) == true {
 //			break
@@ -174,7 +174,7 @@ func mixBal (F, S Stream, eqlines []Segment) (Stream, Stream, Stream) {
 	M.c = (F.m*F.c + S.m*S.c)/(M.m)
 	Mline := Line{ -1, 1 - M.c }
 	FSline := ppline(S.x, F.x)
-	M.x = Mline.schnitt(FSline)
+	M.x = Mline.Schnitt(FSline)
 	//find M.x between two equilibrium lines
 	//this assumes the lines are ordered by decreasing c
 	var quadpoints [4]Point
@@ -189,7 +189,7 @@ func mixBal (F, S Stream, eqlines []Segment) (Stream, Stream, Stream) {
 		//holi c:
 	}
 	l1, l2 := segLine(s1), segLine(s2)
-	interpPoint := l1.schnitt(l2)
+	interpPoint := l1.Schnitt(l2)
 	interpLine := ppline(interpPoint, M.x)
 	//use the first 2 points of the quadrilateral
 	//(the segment of the extraction curve)
@@ -199,8 +199,8 @@ func mixBal (F, S Stream, eqlines []Segment) (Stream, Stream, Stream) {
 	extSeg := Segment{ s1.Q, s2.Q }
 	var R, E Stream
 	//this assumes interpLine will intersect with extSeg & rafSeg
-	R.x = interpLine.schnitt(segLine(rafSeg))
-	E.x = interpLine.schnitt(segLine(extSeg))
+	R.x = interpLine.Schnitt(segLine(rafSeg))
+	E.x = interpLine.Schnitt(segLine(extSeg))
 	R.c, E.c = to3(R.x)[2], to3(E.x)[2]
 	R.m = M.m * (M.c - E.c)/(R.c - E.c)
 	E.m = M.m - R.m
@@ -313,10 +313,10 @@ func (s Segment) Points() (P Point, Q Point) {
 	return s.P, s.Q
 }
 
-func (s1 Segment) schnitt(s2 Segment) Point {
+func (s1 Segment) Schnitt(s2 Segment) Point {
 	l1 := ppline(s1.P, s1.Q)
 	l2 := ppline(s2.P, s2.Q)
-	sch := schnitt (l1, l2)
+	sch := Schnitt (l1, l2)
 	xvalues := []float64{sch.X, s1.P.X, s1.Q.X, s2.P.X, s2.Q.X}
 	yvalues := []float64{sch.Y, s1.P.Y, s1.Q.Y, s2.P.Y, s2.Q.Y}
 	sort.Float64s(xvalues)
@@ -330,14 +330,14 @@ func (s1 Segment) schnitt(s2 Segment) Point {
 	}
 }
 
-func (l1 line) schnitt(l2 Line) Point {
+func (l1 line) Schnitt(l2 Line) Point {
 	//TODO: break if A1 and A2 are the same
 	x := (l2.B - l1.B) / (l1.A - l2.A)
 	y := l1.A * x + l1.B 
 	return Point{x, y}
 }
 
-func (l line) CurSch()
+//func (l line) CurSch()
 
 func segLine(s Segment) Line {
 	return ppline(s.P, s.Q)	
