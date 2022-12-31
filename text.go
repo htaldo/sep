@@ -44,7 +44,7 @@ func ReadSegments(filename string) []Segment {
 	input := bufio.NewScanner(f)
 	var fields []float64
 	for input.Scan() {
-		fields = splitRow(input.Text(), 6)	
+		fields = SplitRow(input.Text(), 6)	
 		P, Q := To2(fields[0:2]), To2(fields[3:5])
 		segments = append(segments, Segment{P, Q})
 	}
