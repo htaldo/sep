@@ -38,7 +38,7 @@ func (point Point) Print() {
 	fmt.Println(str)
 }
 
-func readSegments(filename string) []Segment {
+func ReadSegments(filename string) []Segment {
 	var segments []Segment
 	f, _ := os.Open(filename)
 	input := bufio.NewScanner(f)
@@ -52,7 +52,7 @@ func readSegments(filename string) []Segment {
 	return segments
 }
 
-func splitRow(row string, length int) []float64 {
+func SplitRow(row string, length int) []float64 {
 	sarray := regexp.MustCompile("\t+").Split(row, -1)
 	var array []float64
 	var newnumber float64
