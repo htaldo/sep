@@ -1,13 +1,8 @@
 package sep
 
 import (
-	"regexp"
-	"bufio"
-	"fmt"
-	"strconv"
 	"math"
 	"sort"
-	"os"
 )
 
 type Point struct { X, Y float64 }
@@ -31,7 +26,7 @@ func Slope(p1, p2 Point) float64 {
 
 func PSLine(p Point, slope float64) Line {
 	A := slope
-	B := p.Y - m*p.X
+	B := p.Y - A*p.X
 	return Line{A, B}
 }
 
@@ -62,14 +57,14 @@ func (l1 Line) SchnittLine(l2 Line) Point {
 	return Point{x, y}
 }
 
-func (v Vertical) SchnittLine(l line) Point {
-	var x float64 = v  
+func (v Vertical) SchnittLine(l Line) Point {
+	x := float64(v)
 	y := l.A * x + l.B
 	return Point{x, y}
 }
 
-func (h Horizontal) SchnittLine(l line) Point {
-	var y float64 = h 
+func (h Horizontal) SchnittLine(l Line) Point {
+	y := float64(h) 
 	x := (y - l.B)/l.A
 	return Point{x, y}
 }
@@ -79,24 +74,27 @@ func (h Horizontal) SchnittLine(l line) Point {
 //ie if m is infinite
 
 func (l Line) SchnittSeg(s Segment) Point {
-	sch = l.SchnittLine(s.line())
+	sch := l.SchnittLine(s.Line())
 		if sch.TwopBound(s.P, s.Q) == true {
 			return sch
 		}
+	return Point{}
 }
 
 func (h Horizontal) SchnittSeg(s Segment) Point {
-	sch = h.SchnittLine(s.Line())
+	sch := h.SchnittLine(s.Line())
 		if sch.TwopBound(s.P, s.Q) == true {
 			return sch
 		}
+	return Point{}
 }
 
 func (v Vertical) SchnittSeg(s Segment) Point {
-	sch = v.SchnittLine(s.Line())
+	sch := v.SchnittLine(s.Line())
 		if sch.TwopBound(s.P, s.Q) == true {
 			return sch
 		}
+	return Point{}
 }
 
 func (s1 Segment) SchnittSeg(s2 Segment) Point {
@@ -198,13 +196,14 @@ func Satan (O, P Point) float64 {
 func (o Point) TwopBound(P, Q Point) bool {
 	//break if two points are the same
 	//write between()
-	xcoords := [2]float64{P.X, Q.X}
-	ycoords := [2]float64{P.Y, Q.Y}
-	sortedx := sort.Ints(xcoords)
-	sortedy := sort.Ints(ycoords)
-	if o.X >= sortedx[0] && o.X <= sortedx[1] {
-		if o.Y >= sortedy[0] && o.Y <= sortedy[1] {
+	xcoords := []float64{P.X, Q.X}
+	ycoords := []float64{P.Y, Q.Y}
+	sort.Float64s(xcoords)
+	sort.Float64s(ycoords)
+	if o.X >= xcoords[0] && o.X <= xcoords[1] {
+		if o.Y >= ycoords[0] && o.Y <= ycoords[1] {
 			return true
 		}
 	}
+	return false
 }
