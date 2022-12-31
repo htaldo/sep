@@ -152,20 +152,20 @@ func (s Stream) Print() {
 	fmt.Printf("%.1f\t%.4f\t%.4f\t%.4f\n", s.m, s.x.X, s.x.Y, s.c)
 }
 
-func readDiagram() Diagram {
+func ReadDiagram() Diagram {
 	var d Diagram
-	d.EqLines = readSegments("reparto")	
-	d.Alders = readSegments("alders")	
+	d.EqLines = ReadSegments("reparto")	
+	d.Alders = ReadSegments("alders")	
 	return d
 }
 
-func readFS() (F, S Stream) {
-	F = readStream("feed")	
-	S = readStream("solvent")	
+func ReadFS() (F, S Stream) {
+	F = ReadStream("feed")	
+	S = ReadStream("solvent")	
 	return F, S
 }
 
-func readStream(filename string) Stream {
+func ReadStream(filename string) Stream {
 	var s Stream
 	f, _ := os.Open(filename)
 	input := bufio.NewScanner(f)
