@@ -15,6 +15,7 @@ type Segment struct { P, Q Point }
 type Line struct { A, B float64}
 type Horizontal float64
 type Vertical float64
+<<<<<<< HEAD
 type Stream struct { 
 	m,c float64 //c is the composition of C
 	x Point		//x represents the compositions of A and B
@@ -307,16 +308,103 @@ func splitRow(row string, length int) []float64 {
 		array = append(array, newnumber)
 	}
 	return array
+=======
+
+const sq2 = 1.41421356237
+
+func PPLine(p1, p2 Point) Line {
+	A := Slope(p1, p2)
+	B := p1.Y - A*p1.X
+	//this satisfies p1.Y = A*p1.X + B
+	return Line{A, B}
+}
+
+func Slope(p1, p2 Point) float64 {
+	return (p2.Y - p1.Y)/(p2.X - p1.X)
+}
+
+func PSLine(p Point, slope float64) Line {
+	A := slope
+	B := p.Y - m*p.X
+	return Line{A, B}
+}
+
+func Area(Ps []Point) float64 {
+	var Area float64	
+	sorted := SortPolPoints(Ps)
+	n := len(sorted)
+	j := n - 1
+	for i := 0; i < n; i++ {
+		Area += (sorted[j].X + sorted[i].X) * (sorted[j].Y - sorted[i].Y)
+		j = i
+	}
+	return math.Abs(Area/2.0)
+>>>>>>> 14f4e6e (-)
 }
 
 func (s Segment) Points() (P Point, Q Point) {
 	return s.P, s.Q
 }
 
+<<<<<<< HEAD
 func (s1 Segment) Schnitt(s2 Segment) Point {
 	l1 := ppline(s1.P, s1.Q)
 	l2 := ppline(s2.P, s2.Q)
 	sch := l1.Schnitt(l2)
+=======
+func (s Segment) Line() Line {
+	return PPLine(s.P, s.Q)	
+}
+
+func (l1 Line) SchnittLine(l2 Line) Point {
+	//TODO: break if A1 and A2 are the same
+	x := (l2.B - l1.B) / (l1.A - l2.A)
+	y := l1.A * x + l1.B 
+	return Point{x, y}
+}
+
+func (v Vertical) SchnittLine(l line) Point {
+	var x float64 = v  
+	y := l.A * x + l.B
+	return Point{x, y}
+}
+
+func (h Horizontal) SchnittLine(l line) Point {
+	var y float64 = h 
+	x := (y - l.B)/l.A
+	return Point{x, y}
+}
+
+//TODO: generalize l, h and v
+//maybe a type assertion would help (check if type is vertical
+//ie if m is infinite
+
+func (l Line) SchnittSeg(s Segment) Point {
+	sch = l.SchnittLine(s.line())
+		if sch.TwopBound(s.P, s.Q) == true {
+			return sch
+		}
+}
+
+func (h Horizontal) SchnittSeg(s Segment) Point {
+	sch = h.SchnittLine(s.Line())
+		if sch.TwopBound(s.P, s.Q) == true {
+			return sch
+		}
+}
+
+func (v Vertical) SchnittSeg(s Segment) Point {
+	sch = v.SchnittLine(s.Line())
+		if sch.TwopBound(s.P, s.Q) == true {
+			return sch
+		}
+}
+
+func (s1 Segment) SchnittSeg(s2 Segment) Point {
+	l1 := PPLine(s1.P, s1.Q)
+	l2 := PPLine(s2.P, s2.Q)
+	sch := l1.SchnittLine(l2)
+>>>>>>> 14f4e6e (-)
 	xvalues := []float64{sch.X, s1.P.X, s1.Q.X, s2.P.X, s2.Q.X}
 	yvalues := []float64{sch.Y, s1.P.Y, s1.Q.Y, s2.P.Y, s2.Q.Y}
 	sort.Float64s(xvalues)
@@ -330,6 +418,7 @@ func (s1 Segment) Schnitt(s2 Segment) Point {
 	}
 }
 
+<<<<<<< HEAD
 func (l1 Line) Schnitt(l2 Line) Point {
 	//TODO: break if A1 and A2 are the same
 	x := (l2.B - l1.B) / (l1.A - l2.A)
@@ -368,12 +457,21 @@ func area(Ps []Point) float64 {
 
 func sortPolPoints (oldpoints []Point) []Point {
 	centroid := centroid(oldpoints)
+=======
+func SortPolPoints (oldpoints []Point) []Point {
+	Centroid := Centroid(oldpoints)
+>>>>>>> 14f4e6e (-)
 	//var normPoints []Point
 	n := len(oldpoints)
 	points := make(map[float64]Point)
 	for _, oldpoint := range oldpoints { 
+<<<<<<< HEAD
 		//angle := math.Atan(slope(centroid, oldpoint))
 		angle := satan(centroid, oldpoint)
+=======
+		//angle := math.Atan(Slope(Centroid, oldpoint))
+		angle := Satan(Centroid, oldpoint)
+>>>>>>> 14f4e6e (-)
 		points[angle] = oldpoint
 	}
 	angles := make([]float64, 0, n)
@@ -388,7 +486,28 @@ func sortPolPoints (oldpoints []Point) []Point {
 	return newpoints
 }
 
+<<<<<<< HEAD
 func centroid (points []Point) Point {
+=======
+func (p Point) InQuad (Ps [4]Point) bool {
+	var totalArea float64
+	sorted := SortPolPoints(Ps[:])
+	n := len(Ps)
+	j := n - 1
+	for i := 0; i < n; i++ {
+		totalArea += Area([]Point{sorted[j], sorted[i], p})
+		j = i
+	}
+	quadArea := Area(sorted)
+	if (totalArea - quadArea) < 0.001 {
+		return true
+	} else {
+		return false
+	}
+}
+
+func Centroid (points []Point) Point {
+>>>>>>> 14f4e6e (-)
 	var sumX, sumY float64
 	for _, point := range points {
 		sumX += point.X
@@ -399,7 +518,11 @@ func centroid (points []Point) Point {
 	return Point{avgX, avgY}
 }
 
+<<<<<<< HEAD
 func coords (points []Point) ([]float64, []float64) {
+=======
+func Coords (points []Point) ([]float64, []float64) {
+>>>>>>> 14f4e6e (-)
 	var xcoords, ycoords []float64
 	for i := 0; i < len(points); i++ {
 		xcoords = append(xcoords, points[i].X)			
@@ -408,6 +531,7 @@ func coords (points []Point) ([]float64, []float64) {
 	return xcoords, ycoords
 }
 
+<<<<<<< HEAD
 func to3(p Point) [3]float64 {
 	return [3]float64{p.X, p.Y, 1-p.X-p.Y}
 }
@@ -417,6 +541,17 @@ func to2(t []float64) Point {
 }
 
 func satan (O, P Point) float64 {
+=======
+func To3(p Point) [3]float64 {
+	return [3]float64{p.X, p.Y, 1-p.X-p.Y}
+}
+
+func To2(t []float64) Point {
+		return Point{t[0], t[1]}
+}
+
+func Satan (O, P Point) float64 {
+>>>>>>> 14f4e6e (-)
 	pi := math.Pi
 	y := P.Y - O.Y
 	x := P.X - O.X
@@ -427,3 +562,20 @@ func satan (O, P Point) float64 {
 		return 2*pi + atan2angle
 	}
 }
+<<<<<<< HEAD
+=======
+
+func (o Point) TwopBound(P, Q Point) bool {
+	//break if two points are the same
+	//write between()
+	xcoords := [2]float64{P.X, Q.X}
+	ycoords := [2]float64{P.Y, Q.Y}
+	sortedx := sort.Ints(xcoords)
+	sortedy := sort.Ints(ycoords)
+	if o.X >= sortedx[0] && o.X <= sortedx[1] {
+		if o.Y >= sortedy[0] && o.Y <= sortedy[1] {
+			return true
+		}
+	}
+}
+>>>>>>> 14f4e6e (-)
