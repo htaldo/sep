@@ -7,7 +7,7 @@ import (
 
 type Point struct { X, Y float64 }
 type Segment struct { P, Q Point }
-type Line struct { A, B float64}
+type Line struct { A, B float64 }
 type Horizontal float64
 type Vertical float64
 

@@ -7,21 +7,21 @@ import (
 )
 
 type Stream struct { 
-	m,c float64 //c is the composition of C
-	x Point		//x represents the compositions of A and B
+	Mass,SComp float64 //SComp is the solute composition 
+	Comp Point		//Comp represents the compositions of A and B
 }
 type Diagram struct { EqLines, Alders []Segment }
 
 func Efficiency(F, E Stream) float64 {
-	return ((E.c * E.m) / (F.c * F.m))
+	return ((E.SComp * E.Mass) / (F.SComp * F.Mass))
 }
 
 func Partition1(E, R Stream) float64 {
-	return E.c/R.c
+	return E.SComp/R.SComp
 }
 
 func Partition2(E, R Stream) float64 {
-	return E.x.X/R.x.X
+	return E.Comp.X/R.Comp.X
 }
 
 func Selectivity(E, R Stream) float64 {
@@ -30,7 +30,7 @@ func Selectivity(E, R Stream) float64 {
 
 func LleSimple(F, S Stream, d Diagram) (M, R, E Stream){
 	M, R, E = mixBal(F, S, d.EqLines)	
-	//interpSeg := Segment{ R.x, E.x }
+	//interpSeg := Segment{ R.Comp, E.Comp }
 	//no need to print interpseg; it's R and E
 	//println("> M, R, E")
 	//M.Print()
@@ -50,28 +50,28 @@ func LleDirect(F0, S Stream, d Diagram, finalExtC float64) {
 		fmt.Printf("%d\n", i)
 		nextM, nextR, nextE = mixBal(F[i], S, d.EqLines)	
 		M, R, E = append(M, nextM), append(R, nextR), append(E, nextE)
-		interpSeg = append(interpSeg, Segment{ R[i].x, E[i].x })
+		interpSeg = append(interpSeg, Segment{ R[i].Comp, E[i].Comp })
 		interpSeg[i].Print()
 		println("> M, R, E")
 		fmt.Printf("%v\n", M)
 		fmt.Printf("%v\n", R)
 		fmt.Printf("%v\n", E)
-		currentEc = E[i].c 
+		currentEc = E[i].SComp 
 		F = append(F, R[i])
 	}
-	//F.c, S.c = To3(F.x)[2], To3(S.x)[2]
+	//F.SComp, S.SComp = To3(F.Comp)[2], To3(S.Comp)[2]
 }
 
 //func LleCounter(F, S Stream, eqLines Segment[], Rn Stream) {
 //	var E, R, E0 []Stream
-//	Rn.x := schnittRaf(Line{-1, 1-c})
-//	E0.x = schnittExt(PPLine(Rn.x,M.x))	
+//	Rn.Comp := schnittRaf(Line{-1, 1-c})
+//	E0.Comp = schnittExt(PPLine(Rn.Comp,M.Comp))	
 //	E = append(E, E0)
-//	P := PPLine(F.x,E0).SchnittLine(PPLine(Rn.x, S.x))
+//	P := PPLine(F.Comp,E0).SchnittLine(PPLine(Rn.Comp, S.Comp))
 //	var nextRx, nextEx Point
 //	nextRx = Point{0, 0}
-//	for i := 0; To3(nextRx)[2] > Rn.c; i++ {
-//		nextRx = alders(E[i].x, d.Alders)
+//	for i := 0; To3(nextRx)[2] > Rn.SComp; i++ {
+//		nextRx = alders(E[i].Comp, d.Alders)
 //		R = append(Rcomps, nextRcomp)
 //		nextEcomp = SchnittExt(line(nextRcomp, P))
 //		Ecomps = append(Ecomps, nextEcomp)
@@ -109,19 +109,19 @@ func mixBal (F, S Stream, eqlines []Segment) (Stream, Stream, Stream) {
 	//it's probably fine to pass the whole diagram (or a pointer to it),
 	//instead of just eqlines
 	var M Stream
-	M.m = F.m + S.m
-	M.c = (F.m*F.c + S.m*S.c)/(M.m)
-	Mline := Line{ -1, 1 - M.c }
-	FSline := PPLine(S.x, F.x)
-	M.x = Mline.SchnittLine(FSline)
-	//find M.x between two equilibrium lines
+	M.Mass = F.Mass + S.Mass
+	M.SComp = (F.Mass*F.SComp + S.Mass*S.SComp)/(M.Mass)
+	Mline := Line{ -1, 1 - M.SComp }
+	FSline := PPLine(S.Comp, F.Comp)
+	M.Comp = Mline.SchnittLine(FSline)
+	//find M.Comp between two equilibrium lines
 	//this assumes the lines are ordered by decreasing c
 	var quadpoints [4]Point
 	var s1, s2 Segment
 	for i, j := 0, 1; j < len(eqlines); i, j = i+1, j+1 {
 		quadpoints[0], quadpoints[1] = eqlines[i].Points()
 		quadpoints[2], quadpoints[3] = eqlines[j].Points()
-		if M.x.InQuad(quadpoints) == true {
+		if M.Comp.InQuad(quadpoints) == true {
 			s1, s2 = eqlines[i], eqlines[j]
 			break
 		}
@@ -129,7 +129,7 @@ func mixBal (F, S Stream, eqlines []Segment) (Stream, Stream, Stream) {
 	}
 	l1, l2 := s1.Line(), s2.Line()
 	interpPoint := l1.SchnittLine(l2)
-	interpLine := PPLine(interpPoint, M.x)
+	interpLine := PPLine(interpPoint, M.Comp)
 	//use the first 2 points of the quadrilateral
 	//(the segment of the extraction curve)
 	//to intersect with interpLine
@@ -138,18 +138,18 @@ func mixBal (F, S Stream, eqlines []Segment) (Stream, Stream, Stream) {
 	extSeg := Segment{ s1.Q, s2.Q }
 	var R, E Stream
 	//this assumes interpLine will intersect with extSeg & rafSeg
-	R.x = interpLine.SchnittLine(rafSeg.Line())
-	E.x = interpLine.SchnittLine(extSeg.Line())
-	R.c, E.c = To3(R.x)[2], To3(E.x)[2]
-	R.m = M.m * (M.c - E.c)/(R.c - E.c)
-	E.m = M.m - R.m
+	R.Comp = interpLine.SchnittLine(rafSeg.Line())
+	E.Comp = interpLine.SchnittLine(extSeg.Line())
+	R.SComp, E.SComp = To3(R.Comp)[2], To3(E.Comp)[2]
+	R.Mass = M.Mass * (M.SComp - E.SComp)/(R.SComp - E.SComp)
+	E.Mass = M.Mass - R.Mass
 	return M, R, E
 }
 
 // beg text
 
 func (s Stream) Print() {
-	fmt.Printf("%.1f\t%.4f\t%.4f\t%.4f\n", s.m, s.x.X, s.x.Y, s.c)
+	fmt.Printf("%.1f\t%.4f\t%.4f\t%.4f\n", s.Mass, s.Comp.X, s.Comp.Y, s.SComp)
 }
 
 func ReadDiagram() Diagram {
@@ -172,7 +172,7 @@ func ReadStream(filename string) Stream {
 	var fields []float64
 	for input.Scan() {
 		fields = SplitRow(input.Text(), 4)	
-		s.x, s.m = To2(fields[0:2]), fields[3]
+		s.Comp, s.Mass = To2(fields[0:2]), fields[3]
 	}
 	f.Close()
 	return s
