@@ -44,7 +44,7 @@ func ReadSegments(filename string) []Segment {
 	input := bufio.NewScanner(f)
 	var fields []float64
 	for input.Scan() {
-		fields = SplitRow(input.Text(), 6)	
+		fields = SplitRow(input.Text(), "\t+")	
 		P, Q := To2(fields[0:2]), To2(fields[3:5])
 		segments = append(segments, Segment{P, Q})
 	}
@@ -52,11 +52,14 @@ func ReadSegments(filename string) []Segment {
 	return segments
 }
 
-func SplitRow(row string, length int) []float64 {
-	sarray := regexp.MustCompile("\t+").Split(row, -1)
+func SplitRow(row string, regex string) []float64 {
+	//DEBUG trying to pass the regexp as an argument
+	//TODO: take the length to be len(sarray)
+	//	if the user wants to specify max field use ReadFields
+	sarray := regexp.MustCompile(regex).Split(row, -1)
 	var array []float64
 	var newnumber float64
-	for i := 0; i < length; i++ {
+	for i := 0; i < len(sarray); i++ {
 		newnumber, _ = strconv.ParseFloat(sarray[i], 64)
 		array = append(array, newnumber)
 	}

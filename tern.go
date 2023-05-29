@@ -171,7 +171,7 @@ func ReadStream(filename string) Stream {
 	input := bufio.NewScanner(f)
 	var fields []float64
 	for input.Scan() {
-		fields = SplitRow(input.Text(), 4)	
+		fields = SplitRow(input.Text(), "\t+")	
 		s.Comp, s.Mass = To2(fields[0:2]), fields[3]
 	}
 	f.Close()

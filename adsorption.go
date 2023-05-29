@@ -1,5 +1,7 @@
 package sep
 
+//F and S are just mass flow rates, not Streams
+
 type Isothermal []Segment
 
 func (l Line) SchnittItherm(isothermal Isothermal) Point {
@@ -7,7 +9,7 @@ func (l Line) SchnittItherm(isothermal Isothermal) Point {
 	//that helps to keep track of the last intersected segment from an external
 	//calling loop
 	var sch Point
-	for i := len(isothermal) - 1; i == 0; i-- {
+	for i := len(isothermal) - 1; i >= 0; i-- {
 		sch = l.SchnittSeg(isothermal[i])
 		if (sch != Point{}) {
 			break
@@ -21,8 +23,8 @@ func (h Horizontal) SchnittItherm(isothermal Isothermal) Point {
 	//that helps to keep track of the last intersected segment from an external
 	//calling loop
 	var sch Point
-	for i := len(isothermal) - 1; i == 0; i-- {
-		sch := h.SchnittSeg(isothermal[i])
+	for i := len(isothermal) - 1; i >= 0; i-- {
+		sch = h.SchnittSeg(isothermal[i])
 		if (sch != Point{}) {
 			break
 		}
@@ -35,8 +37,8 @@ func (v Vertical) SchnittItherm(isothermal Isothermal) Point {
 	//that helps to keep track of the last intersected segment from an external
 	//calling loop
 	var sch Point
-	for i := len(isothermal) - 1; i == 0; i-- {
-		sch := v.SchnittSeg(isothermal[i])
+	for i := len(isothermal) - 1; i >= 0; i-- {
+		sch = v.SchnittSeg(isothermal[i])
 		if (sch != Point{}) {
 			break
 		}
@@ -70,11 +72,11 @@ func AdsCounter(isothermal Isothermal, F, S, Co, Cf, mo float64) (stages []Segme
 	opLine := PSLine(Point{Co,mf}, slope)
 	Ci := Co
 	var P, Q, pivot Point
-	for i:=0; Ci < Cf; i++ {
+	for i:=0; Ci > Cf; i++ {
 		P = Vertical(Ci).SchnittLine(opLine)
 		pivot = Horizontal(P.Y).SchnittItherm(isothermal)
 		Q = Vertical(pivot.X).SchnittLine(opLine)
-		stages[i] = Segment{P,Q}
+		stages = append(stages, Segment{P,Q})
 		Ci = Q.X
 	}
 	return stages
